@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour {
@@ -18,6 +19,7 @@ public class Player : MonoBehaviour {
     private float mouseTime;
     private bool mousePressed;
     private bool longPass;
+    private bool canShowEncText;
     ParticleSystem.EmissionModule emmition;
 
     private float prev;
@@ -28,20 +30,32 @@ public class Player : MonoBehaviour {
 
     public GameObject GameOverPanel;
     public GameObject NextLevelPanel;
+    public GameObject EncPrefab;
+    public Text ScoreText;
     public static bool gameOver = false;
     public static bool win = false;
+    private int score;
+    public static int level;
+    private float timeHolder;
 
     void Start() {
         // debug parm
+        score = 0;
+        if (!PlayerPrefs.HasKey("Level")) {
+            level = 1;
+        } else {
+            level = PlayerPrefs.GetInt("Level");
+        }
         duration = new Vector3(.4f, -.4f, 0);
         gameOver = false;
+        canShowEncText = false;
         win = false;
         // non debug parm
-        enemyDistance = 0.5f;
+        enemyDistance = 0.6f;
         mouseTime = 0;
         time = .5f;
         body = GetComponent<Rigidbody2D>();
-        body.velocity = new Vector2(0f, 0f);
+        body.velocity = new Vector2(-1f, -1f);
         speedY = -1.8f;
         speedX = body.velocity.x;
         particleSystem = GetComponentInChildren<ParticleSystem>();
@@ -49,6 +63,14 @@ public class Player : MonoBehaviour {
     }
 
     void Update() {
+        if (timeHolder > 1) {
+            timeHolder = 0;
+            score += level;
+            ScoreText.text = score.ToString();
+        } else {
+            timeHolder += Time.deltaTime;
+        }
+
         RaycastHit2D hit = Physics2D.Raycast(this.gameObject.transform.position + new Vector3(0.24f, 0.24f, 0f), Vector2.down);
         RaycastHit2D hit2 = Physics2D.Raycast(this.gameObject.transform.position + new Vector3(-0.24f, 0.24f, 0f), Vector2.down);
 
@@ -57,6 +79,9 @@ public class Player : MonoBehaviour {
                 if (hit.collider.tag == "Tree") {
                     Tree tree = hit.collider.gameObject.GetComponent<Tree>();
                     tree.PlayAnim();
+                    ShowEncText();
+                    score += level * 2;
+                    ScoreText.text = score.ToString();
                 }
             }
         }
@@ -66,6 +91,9 @@ public class Player : MonoBehaviour {
                 if (hit2.collider.tag == "Tree") {
                     Tree tree = hit2.collider.gameObject.GetComponent<Tree>();
                     tree.PlayAnim();
+                    ShowEncText();
+                    score += level * 2;
+                    ScoreText.text = score.ToString();
                 }
             }
         }
@@ -94,7 +122,7 @@ public class Player : MonoBehaviour {
 
         // curve motion
         if (!timePass) {
-            if(!gameOver) {
+            if (!gameOver) {
                 if (longPass) {
                     body.velocity = LongTimePass(left, Time.deltaTime);
                 } else {
@@ -110,6 +138,7 @@ public class Player : MonoBehaviour {
         } else {
             emmition.enabled = false;
         }
+
     }
 
     public Vector2 TimePass(bool left, float delta) {
@@ -170,4 +199,13 @@ public class Player : MonoBehaviour {
         this.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         GameOverPanel.SetActive(true);
     }
+
+    private void ShowEncText() {
+        if (EncPrefab != null) {
+            if (Random.Range(1, 5) % 3 == 0) {
+                Instantiate(EncPrefab, new Vector3(0, transform.position.y, 0), Quaternion.identity);
+            }
+        }
+    }
+
 }

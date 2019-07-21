@@ -13,6 +13,9 @@ public class Loder : MonoBehaviour {
     private float progress;
 
     void Start() {
+        var fill = this.GetComponentInChildren<Slider>().GetComponentInChildren<Image>();
+        Debug.Log("Hello world This will ot work");
+        fill.color = ColorStyleHolder.colors[ColorStyleHolder.colorValuSet].TreeColor;
         start = player.transform.position;
         end = start + new Vector2(0, 55);
         progress = 0f;

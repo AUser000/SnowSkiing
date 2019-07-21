@@ -11,11 +11,12 @@ public class GameManager : MonoBehaviour
     public GameObject tree;
     public GameObject smallTree;
     public GameObject player;
-    public GameObject loder;
+    public GameObject Loader;
     public GameObject finishLine;
     public GameObject GameOverPanel;
     public GameObject NextLevelPanel;
     public Text levelText;
+    public Text EncText;
 
     private bool gameOver = false;
 

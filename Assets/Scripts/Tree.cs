@@ -27,6 +27,6 @@ public class Tree : MonoBehaviour {
 
     void ShowFloatingText() {
         var go = Instantiate(FloatingTextPrefab, transform.position + new Vector3(0, .4f, 0), Quaternion.identity);
-        go.GetComponent<TextMesh>().text = "+2";
+        go.GetComponent<TextMesh>().text = (Player.level * 2).ToString();
     }
 }

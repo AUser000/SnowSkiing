@@ -838,7 +838,7 @@ GameObject:
   - component: {fileID: 436654722}
   - component: {fileID: 436654721}
   m_Layer: 5
-  m_Name: LevelNumberText (1)
+  m_Name: ScoreText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -896,7 +896,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 11540
+  m_Text: 0
 --- !u!222 &436654722
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1178,11 +1178,12 @@ MonoBehaviour:
   tree: {fileID: 1404080528}
   smallTree: {fileID: 352276157}
   player: {fileID: 1389257911}
-  loder: {fileID: 0}
+  Loader: {fileID: 0}
   finishLine: {fileID: 501436591}
   GameOverPanel: {fileID: 1024726268}
   NextLevelPanel: {fileID: 1565622089}
   levelText: {fileID: 1593040632}
+  EncText: {fileID: 0}
 --- !u!1 &656916713
 GameObject:
   m_ObjectHideFlags: 0
@@ -6215,7 +6216,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.8897501, y: 0.94425005}
   m_AnchorMax: {x: 0.95175004, y: 0.98625004}
-  m_AnchoredPosition: {x: 1.5999756, y: -2.6666}
+  m_AnchoredPosition: {x: 1.5999756, y: -2.666626}
   m_SizeDelta: {x: 6.6, y: 5.3333}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &792674794
@@ -6566,7 +6567,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.16441669, y: 0.96225005}
   m_AnchorMax: {x: 0.3235, y: 0.98625004}
-  m_AnchoredPosition: {x: -6.4, y: -1.75}
+  m_AnchoredPosition: {x: -6.3999634, y: -1.75}
   m_SizeDelta: {x: -12.9, y: 3.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1018392368
@@ -7533,7 +7534,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.3235, y: 0.96225005}
   m_AnchorMax: {x: 0.40650004, y: 0.98625004}
-  m_AnchoredPosition: {x: 2, y: -3.1998997}
+  m_AnchoredPosition: {x: 2, y: -3.1998901}
   m_SizeDelta: {x: 6.8999996, y: 2.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1593040632
@@ -7937,7 +7938,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.037833333, y: 0.93750006}
   m_AnchorMax: {x: 0.117000006, y: 0.98625004}
-  m_AnchoredPosition: {x: -1.7000732, y: 0.85834026}
+  m_AnchoredPosition: {x: -1.7000732, y: 0.8583374}
   m_SizeDelta: {x: -1.4, y: -5.6166}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1927556006
@@ -8287,6 +8288,17 @@ PrefabInstance:
       propertyPath: GameOverPanel
       value: 
       objectReference: {fileID: 1024726268}
+    - target: {fileID: 321076785782841157, guid: 209c48de37728e84c8f29179be41736c,
+        type: 3}
+      propertyPath: EncPrefab
+      value: 
+      objectReference: {fileID: 2299926338817997672, guid: 99c724a697961c64ea26c9ba758ac710,
+        type: 3}
+    - target: {fileID: 321076785782841157, guid: 209c48de37728e84c8f29179be41736c,
+        type: 3}
+      propertyPath: ScoreText
+      value: 
+      objectReference: {fileID: 436654721}
     m_RemovedComponents:
     - {fileID: 321076785782841156, guid: 209c48de37728e84c8f29179be41736c, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 209c48de37728e84c8f29179be41736c, type: 3}

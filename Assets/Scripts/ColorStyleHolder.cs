@@ -19,7 +19,8 @@ public class ColorStyle {
 public class ColorStyleHolder : MonoBehaviour {
 
     #region STATIC VARIBLES
-    private static ColorStyle[] colors = { new ColorStyle(new Color32(255, 55, 55, 1),
+    public static int colorValuSet;
+    public static ColorStyle[] colors = { new ColorStyle(new Color32(255, 55, 55, 1),
                                                             new Color(255, 55, 55, 1),
                                                             new Color32(241, 248, 233, 1),
                                                             new Color(0.48627f,  0.70196f,  0.25882f)), // Green
@@ -48,7 +49,7 @@ public class ColorStyleHolder : MonoBehaviour {
     }
 
     public static ColorStyle GetAColorSet() {
-        int random = Random.Range(0, colors.Length);
-        return colors[random];
+        colorValuSet = Random.Range(0, colors.Length);        
+        return colors[colorValuSet];
     }
 }
