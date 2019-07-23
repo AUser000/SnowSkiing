@@ -15,10 +15,17 @@ public class GameManager : MonoBehaviour
     public GameObject finishLine;
     public GameObject GameOverPanel;
     public GameObject NextLevelPanel;
+    public GameObject AboutPanel;
     public Text levelText;
-    public Text EncText;
+
+    //Play Pause Button
+    public Sprite playSprite;
+    public Sprite pauseSprite;
+    public Button pauseButton;
+    private Vector2 playerLastVelocity;
 
     private bool gameOver = false;
+    private bool pause = false;
 
     //for debuggin
     private GameObject[] GameObjects;
@@ -37,7 +44,7 @@ public class GameManager : MonoBehaviour
 
         // Color settings on Game Objects
         SetColorsOnGameObject();
-        
+        ShowAboutPanel();
         InstantiateParameters();
         GameObjects = new GameObject[spawndUnits]; //  for debugging 
         MakeTheJungle();
@@ -45,7 +52,7 @@ public class GameManager : MonoBehaviour
     }
 
     void Start() {
-        UpdateGameLevel();
+        UpdateGameLevelTag();
     }
 
     void Update() {
@@ -123,7 +130,9 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Over !!!");
         Destroy(player.gameObject.GetComponent<SpriteRenderer>());
         player.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        GameOverPanel.SetActive(true);
+        if (!AboutPanel.activeSelf) {
+            GameOverPanel.SetActive(true);
+        }
     }
 
     public void RestartGame() {
@@ -141,8 +150,36 @@ public class GameManager : MonoBehaviour
         NextLevelPanel.SetActive(true);
     }
 
-    public void UpdateGameLevel() {
+    public void UpdateGameLevelTag() {
         levelText.text = level.ToString();
     }
 
+    public void ShowAboutPanel() {
+        if (!PlayerPrefs.HasKey("OldPlayer")) {
+            //Debug.Log("This is a new player");
+            AboutPanel.SetActive(true);
+            PlayerPrefs.SetInt("OldPlayer", 1);
+        } else {
+            // Do nothing!
+            Debug.Log("This guy is an Old player");
+        }
+    }
+
+    //Button // Have a bug
+    public void PauseGame() {
+        //Debug.Log("Button clicked!");
+        if (!pause) {
+            playerLastVelocity = player.GetComponent<Rigidbody2D>().velocity;
+            //Debug.Log("" + Time.timeScale);
+            Time.timeScale = 0;
+            pause = true;
+            pauseButton.image.sprite = playSprite;
+        } else {
+            Time.timeScale = 1;
+            pause = false;
+            pauseButton.image.sprite = pauseSprite;
+            player.GetComponent<Rigidbody2D>().velocity = playerLastVelocity;
+        }
+    }
+    
 }
