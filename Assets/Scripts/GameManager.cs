@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public GameObject player;
     public GameObject Loader;
     public GameObject finishLine;
+    public GameObject GamePanel;
     public GameObject GameOverPanel;
     public GameObject NextLevelPanel;
     public GameObject AboutPanel;
@@ -156,21 +157,17 @@ public class GameManager : MonoBehaviour
 
     public void ShowAboutPanel() {
         if (!PlayerPrefs.HasKey("OldPlayer")) {
-            //Debug.Log("This is a new player");
+            GamePanel.SetActive(false);
             AboutPanel.SetActive(true);
             PlayerPrefs.SetInt("OldPlayer", 1);
-        } else {
-            // Do nothing!
-            Debug.Log("This guy is an Old player");
+            player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         }
     }
 
     //Button // Have a bug
     public void PauseGame() {
-        //Debug.Log("Button clicked!");
         if (!pause) {
             playerLastVelocity = player.GetComponent<Rigidbody2D>().velocity;
-            //Debug.Log("" + Time.timeScale);
             Time.timeScale = 0;
             pause = true;
             pauseButton.image.sprite = playSprite;
