@@ -12,7 +12,16 @@ public class TencesHolder : MonoBehaviour {
         instance = this;    
     }
 
-    private static string[] t = {"cool", "smooth", "Marvellous", "Excelent", "wow", "come on", "king of the mountan", "mountan is yours", "you won't loose"};
+    private static string[] t = {"cool",
+                                "smooth",
+                                "Marvellous",
+                                "Excelent",
+                                "wow",
+                                "come on",
+                                "king of the mountan",
+                                "mountan is yours",
+                                "you won't loose"
+                                };
 
     public static string GetText() {
         i++;

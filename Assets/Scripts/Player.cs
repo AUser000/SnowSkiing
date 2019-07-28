@@ -1,72 +1,62 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour {
     public float speedX;
     public float speedY;
-    public float enemyDistance;
-    private bool left = false;
-    private bool timePass = true;
+    public float treeDistance;
     public float time;
     public float currunt;
+    private bool left = false;
+    private bool timePass = true;
     private float changeTime;
-    float velocity;
+    private float velocity;
     private Rigidbody2D body;
-    private ParticleSystem particleSystem;
     private float mouseTime;
     private bool mousePressed;
     private bool longPass;
-    private bool canShowEncText;
-    ParticleSystem.EmissionModule emmition;
-
-    private float prev;
-
-    // for debug
-    private Vector3 duration;
-    public bool stop = false;
 
     public GameObject GameOverPanel;
     public GameObject NextLevelPanel;
     public GameObject EncPrefab;
     public Text ScoreText;
+
+    public AudioSource HitSound;
+
     public static bool gameOver = false;
     public static bool win = false;
     private int score;
+    private int highScore;
     public static int level;
     private float timeHolder;
 
     void Start() {
-        // debug parm
         score = 0;
         if (!PlayerPrefs.HasKey("Level")) {
             level = 1;
         } else {
             level = PlayerPrefs.GetInt("Level");
         }
-        duration = new Vector3(.4f, -.4f, 0);
+        if (PlayerPrefs.HasKey(level.ToString())) {
+            highScore = PlayerPrefs.GetInt(level.ToString());
+        } else {
+            highScore = 0;
+        }
         gameOver = false;
-        canShowEncText = false;
         win = false;
-        // non debug parm
-        enemyDistance = 0.6f;
+        treeDistance = 0.6f;
         mouseTime = 0;
         time = .5f;
         body = GetComponent<Rigidbody2D>();
         body.velocity = new Vector2(-1f, -1f);
         speedY = -1.8f;
         speedX = body.velocity.x;
-        particleSystem = GetComponentInChildren<ParticleSystem>();
-        emmition = particleSystem.emission;
     }
 
     void Update() {
         if (timeHolder > 1) {
             timeHolder = 0;
-            score += level;
-            ScoreText.text = score.ToString();
+            ScoreAndNotify(level);
         } else {
             timeHolder += Time.deltaTime;
         }
@@ -75,25 +65,19 @@ public class Player : MonoBehaviour {
         RaycastHit2D hit2 = Physics2D.Raycast(this.gameObject.transform.position + new Vector3(-0.24f, 0.24f, 0f), Vector2.down);
 
         if (hit.collider != null) {
-            if (hit.distance <= enemyDistance) {
+            if (hit.distance <= treeDistance) {
                 if (hit.collider.tag == "Tree") {
-                    Tree tree = hit.collider.gameObject.GetComponent<Tree>();
-                    tree.PlayAnim();
-                    ShowEncText();
-                    score += level * 2;
-                    ScoreText.text = score.ToString();
+                    hit.collider.gameObject.GetComponent<Tree>().PlayAnim();
+                    ScoreAndNotify(level * 2);
                 }
             }
         }
 
         if (hit2.collider != null) {
-            if (hit2.distance <= enemyDistance) {
+            if (hit2.distance <= treeDistance) {
                 if (hit2.collider.tag == "Tree") {
-                    Tree tree = hit2.collider.gameObject.GetComponent<Tree>();
-                    tree.PlayAnim();
-                    ShowEncText();
-                    score += level * 2;
-                    ScoreText.text = score.ToString();
+                    hit2.collider.gameObject.GetComponent<Tree>().PlayAnim();
+                    ScoreAndNotify(level * 2);
                 }
             }
         }
@@ -106,11 +90,11 @@ public class Player : MonoBehaviour {
                 left = true;
             }
             timePass = false;
-        }
-        if (Input.GetMouseButtonUp(0)) {
+        } else if (Input.GetMouseButtonUp(0)) {
             mousePressed = false;
             mouseTime = 0;
         }
+
         if (mousePressed) {
             mouseTime += Time.deltaTime;
             if (mouseTime >= 0.3) {
@@ -132,16 +116,9 @@ public class Player : MonoBehaviour {
                 body.velocity = Vector2.zero;
             }
         }
-
-        if (mousePressed) {
-            emmition.enabled = true;
-        } else {
-            emmition.enabled = false;
-        }
-
     }
 
-    public Vector2 TimePass(bool left, float delta) {
+    private Vector2 TimePass(bool left, float delta) {
         currunt += delta;
         velocity = ((currunt % time) * 6) - 2;
         if (currunt >= time) {
@@ -160,7 +137,7 @@ public class Player : MonoBehaviour {
         }
     }
 
-    public Vector2 LongTimePass(bool left, float delta) {
+    private Vector2 LongTimePass(bool left, float delta) {
         currunt += delta;
         velocity = ((currunt % time) * 9) - 3;
         if (currunt >= time) {
@@ -181,30 +158,40 @@ public class Player : MonoBehaviour {
 
 
     private void OnCollisionEnter2D(Collision2D collision) {
-        GameOverAndRestart();
+        GameOverAndShowRestartPanel();
     }
 
     public void GameOverAndNextLevel() {
         gameOver = true;
-        Debug.Log("Game Over !!! and Win!!");
+        SaveScore();
         Destroy(this.gameObject.GetComponent<SpriteRenderer>());
         this.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         NextLevelPanel.SetActive(true);
     }
 
-    public void GameOverAndRestart() {
+    public void GameOverAndShowRestartPanel() {
+        if (GameManager.isMusicOn) {
+            HitSound.Play();
+        }
         gameOver = true;
-        Debug.Log("Game Over !!!");
+        if (GameManager.isVibrationOn) { 
+            Vibration.Vibrate(350);
+        }
+        
+        SaveScore();
         Destroy(this.gameObject.GetComponent<SpriteRenderer>());
         this.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         GameOverPanel.SetActive(true);
     }
 
-    private void ShowEncText() {
-        if (EncPrefab != null) {
-            if (Random.Range(1, 5) % 3 == 0) {
-                Instantiate(EncPrefab, new Vector3(0, transform.position.y, 0), Quaternion.identity);
-            }
+    private void ScoreAndNotify(int i) {
+        score += i;
+        ScoreText.text = score.ToString();
+    }
+
+    private void SaveScore() {
+        if (highScore < score) {
+            PlayerPrefs.SetInt(level.ToString(), score);
         }
     }
 

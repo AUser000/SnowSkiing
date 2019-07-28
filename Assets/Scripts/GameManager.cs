@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
-{
+public class GameManager : MonoBehaviour {
 
     public GameObject bigTree;
     public GameObject tree;
@@ -17,43 +16,51 @@ public class GameManager : MonoBehaviour
     public GameObject GameOverPanel;
     public GameObject NextLevelPanel;
     public GameObject AboutPanel;
+
+    public GameObject VibrateButton;
+    public GameObject HighScoreButton;
+    public GameObject MusicButton;
+    public GameObject AboutUsButton;
     public Text levelText;
 
     //Play Pause Button
     public Sprite playSprite;
     public Sprite pauseSprite;
     public Button pauseButton;
-    private Vector2 playerLastVelocity;
+    public Button settingsButton;
 
+    public AudioSource HitMusicSource;
+    public AudioSource BackGroudSource;
+
+    private Vector2 playerLastVelocity;
     private bool gameOver = false;
     private bool pause = false;
-
-    //for debuggin
-    private GameObject[] GameObjects;
-
     private Camera cam;
     private int level;
 
-    private int spawndUnits;             // level * 7 + 33
+    private int spawnUnits;             // level * 7 + 33
     private float spwningUpperRange;     // screen.width related world cordinate
     private float spwningLowerRange;     // -screen.width related world cordinate
     private float treeDistance;          // 0.9f
     private float jungleLenth;
 
+    private bool settingsButtonActive;
+
+    public static bool isVibrationOn;
+    public static bool isMusicOn;
+
     private void Awake() {
         cam = GetComponent<Camera>();
-
-        // Color settings on Game Objects
         SetColorsOnGameObject();
         ShowAboutPanel();
-        InstantiateParameters();
-        GameObjects = new GameObject[spawndUnits]; //  for debugging 
+        InstantiateParameters(); 
         MakeTheJungle();
-        finishLine.transform.position = new Vector3(0, -jungleLenth, 0);
+        MakeTheFinishLine();
     }
 
     void Start() {
         UpdateGameLevelTag();
+        PlayBackgroundMusic();
     }
 
     void Update() {
@@ -69,11 +76,20 @@ public class GameManager : MonoBehaviour
                 Player.gameOver = true;
             }
         }
+
+        HandleInputs();
+    }
+
+    public void PlayBackgroundMusic() {
+        if (GameManager.isMusicOn) {
+            Debug.Log("Now Playing Background Music");
+            BackGroudSource.Play();
+        }
     }
 
     private void MakeTheJungle() {
         bool reached = false;
-        for (int  i = 0; i < spawndUnits && !reached; i++) {
+        for (int  i = 0; i < spawnUnits && !reached; i++) {
             if (i*treeDistance > 50) {
                 reached = true;
             }
@@ -81,12 +97,22 @@ public class GameManager : MonoBehaviour
         }
 
         // rest of trees
-        if (spawndUnits > 50) {
-            float restTreeDistance = jungleLenth / (spawndUnits - 50);
-            for (int i = 0; i < spawndUnits - 50; i++) {
+        if (spawnUnits > 50) {
+            float restTreeDistance = jungleLenth / (spawnUnits - 50);
+            for (int i = 0; i < spawnUnits - 50; i++) {
                 GenATree(i, restTreeDistance);
             }
         }
+    }
+
+    private void HandleInputs() {
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            Application.Quit();
+        }
+    }
+
+    private void MakeTheFinishLine() {
+        finishLine.transform.position = new Vector3(0, -jungleLenth, 0);
     }
 
     private void InstantiateParameters() {
@@ -96,29 +122,47 @@ public class GameManager : MonoBehaviour
         } else {
             level = PlayerPrefs.GetInt("Level");
         }
-        //PlayerPrefs.SetInt("Level", 1);
+
+        if (!PlayerPrefs.HasKey("Vib")) {
+            PlayerPrefs.SetInt("Vib", 1);
+            isVibrationOn = true;
+        } else if (PlayerPrefs.GetInt("Vib") == 1) {
+            isVibrationOn = true;
+        } else {
+            VibrateButton.GetComponent<Image>().color = new Color(.7f, .7f, .7f, 1);
+            isVibrationOn = false;
+        }
+        
+        if (!PlayerPrefs.HasKey("Music")) {
+            PlayerPrefs.SetInt("Music", 1);
+            isMusicOn = true;
+        } else if (PlayerPrefs.GetInt("Music") == 1) {
+            isMusicOn = true;
+        } else {
+            MusicButton.GetComponent<Image>().color = new Color(.7f, .7f, .7f, 1);
+            isMusicOn = false;
+        }
+
+        settingsButtonActive = false;
         spwningUpperRange = cam.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height)).x; // right side from center
         spwningLowerRange = -spwningUpperRange; // left side from center
-        spawndUnits = (level*7) + 33; // y = mx + c // m = 7 // c = 33
+        spawnUnits = (level*5) + 40; // y = mx + c // m = 7 // c = 33 // last used values
         jungleLenth = 50f; // is a Constant
         treeDistance = 0.9f; // is a constance
     }
 
     private void GenATree(int i, float treeDistance) {
         Vector3 pos = bigTree.transform.position + new Vector3(Random.Range(spwningLowerRange, spwningUpperRange), -treeDistance * i, 0);
-        GameObject duplicate;
         if (i % 3 == 1) {
-            duplicate = Instantiate(smallTree, pos, Quaternion.identity) as GameObject;
+            Instantiate(smallTree, pos, Quaternion.identity);
         } else if (i%3 == 0) {
-            duplicate = Instantiate(tree, pos, Quaternion.identity) as GameObject;
+            Instantiate(tree, pos, Quaternion.identity);
         } else {
-            duplicate = Instantiate(bigTree, pos, Quaternion.identity) as GameObject;
+            Instantiate(bigTree, pos, Quaternion.identity);
         }
-        GameObjects[i] = duplicate;
     }
 
-
-    public void SetColorsOnGameObject() {
+    private void SetColorsOnGameObject() {
         ColorStyle style = ColorStyleHolder.GetAColorSet();
         cam.backgroundColor = style.BackGroudColor;
         Color colorq = style.TreeColor;
@@ -127,8 +171,14 @@ public class GameManager : MonoBehaviour
         smallTree.transform.GetComponent<SpriteRenderer>().material.color = colorq;
     }
 
-    public void GameOver() {
-        Debug.Log("Game Over !!!");
+    private void GameOver() {
+        if (GameManager.isVibrationOn) {
+            Vibration.Vibrate(350);
+        }
+        if (GameManager.isMusicOn) {
+            Debug.Log("Playing");
+            HitMusicSource.Play();
+        }
         Destroy(player.gameObject.GetComponent<SpriteRenderer>());
         player.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         if (!AboutPanel.activeSelf) {
@@ -136,26 +186,25 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void RestartGame() {
-        Debug.Log("Trying to Restart currunt Level");
+    private void RestartGame() {
         SceneManager.LoadScene("Game");
     }
 
-    public void StartNextLevel() {
+    private void StartNextLevel() {
         level += 1;
         PlayerPrefs.SetInt("Level", level);
+        //PlayerPrefs.SetInt(level.ToString(), player.score);
         Player.gameOver = true;
-        Debug.Log("Game Over !!! and Win!!");
         Destroy(player.gameObject.GetComponent<SpriteRenderer>());
         player.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         NextLevelPanel.SetActive(true);
     }
 
-    public void UpdateGameLevelTag() {
+    private void UpdateGameLevelTag() {
         levelText.text = level.ToString();
     }
 
-    public void ShowAboutPanel() {
+    private void ShowAboutPanel() {
         if (!PlayerPrefs.HasKey("OldPlayer")) {
             GamePanel.SetActive(false);
             AboutPanel.SetActive(true);
@@ -164,10 +213,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //Button // Have a bug
-    public void PauseGame() {
+    public void PauseGameButtonTrigger() {
         if (!pause) {
-            playerLastVelocity = player.GetComponent<Rigidbody2D>().velocity;
+            Time.timeScale = 0;
+            pause = true;
+            pauseButton.image.sprite = playSprite;
+            settingsButton.interactable = false;
+        } else {
+            Time.timeScale = 1;
+            pause = false;
+            pauseButton.image.sprite = pauseSprite;
+            settingsButton.interactable = true;
+        }
+    }
+
+    public void SettingsButtonTrigger() {
+        if (!pause) {
             Time.timeScale = 0;
             pause = true;
             pauseButton.image.sprite = playSprite;
@@ -175,8 +236,64 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
             pause = false;
             pauseButton.image.sprite = pauseSprite;
-            player.GetComponent<Rigidbody2D>().velocity = playerLastVelocity;
         }
+        if (!settingsButtonActive) {
+            pauseButton.interactable = false;
+            HighScoreButton.SetActive(true);
+            VibrateButton.SetActive(true);
+            MusicButton.SetActive(true);
+            AboutUsButton.SetActive(true);
+            settingsButtonActive = true;
+        } else {
+            pauseButton.interactable = true;
+            HighScoreButton.SetActive(false);
+            VibrateButton.SetActive(false);
+            MusicButton.SetActive(false);
+            AboutUsButton.SetActive(false);
+            settingsButtonActive = false;
+        }
+        
+        //ShowOtherButtons();
+    }
+
+    public void HighScoreButtonTrigger() {
+        // Show High Score Panel
+        Handheld.Vibrate();
+    }
+
+    // Vibrate On Off
+    public void VibrateButtonTrigger() {
+        if (isVibrationOn) {
+            isVibrationOn = false;
+            PlayerPrefs.SetInt("Vib", 0);
+            VibrateButton.GetComponent<Image>().color = new Color(.7f, .7f, .7f, 1);
+        } else {
+            isVibrationOn = true;
+            PlayerPrefs.SetInt("Vib", 1);
+            Vibration.Vibrate(500);
+            VibrateButton.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1);
+        }
+    }
+
+    // Music On Off
+    public void MusicButtonTrigger() {
+        if (isMusicOn) {
+            isMusicOn = false;
+            PlayerPrefs.SetInt("Music", 0);
+            MusicButton.GetComponent<Image>().color = new Color(.7f, .7f, .7f, 1);
+            if (BackGroudSource.isPlaying) {
+                BackGroudSource.Stop();
+            }
+        } else {
+            isMusicOn = true;
+            PlayerPrefs.SetInt("Music", 1);
+            MusicButton.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1);
+            BackGroudSource.Play();
+        }
+    }
+
+    public void AboutUsButtonTrigger() {
+        // Show Abut Us Pannel
     }
     
 }

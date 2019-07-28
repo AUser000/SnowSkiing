@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
@@ -14,7 +12,6 @@ public class Loder : MonoBehaviour {
 
     void Start() {
         var fill = this.GetComponentInChildren<Slider>().GetComponentInChildren<Image>();
-        Debug.Log("Hello world This will ot work");
         fill.color = ColorStyleHolder.colors[ColorStyleHolder.colorValuSet].TreeColor;
         start = player.transform.position;
         end = start + new Vector2(0, 55);

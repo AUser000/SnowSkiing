@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class FloatingText : MonoBehaviour {
 
-    private float destroyTime = 1.2f;
+    private float destroyTime = 0.9f;
 
     void Start() {
         Destroy(gameObject, destroyTime);
