@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour {
     public GameObject GameOverPanel;
     public GameObject NextLevelPanel;
     public GameObject AboutPanel;
+    public GameObject CommingSoonPanel;
 
     public GameObject VibrateButton;
     public GameObject HighScoreButton;
@@ -45,6 +46,7 @@ public class GameManager : MonoBehaviour {
     private float jungleLenth;
 
     private bool settingsButtonActive;
+    private bool commingSoonPanelActive;
 
     public static bool isVibrationOn;
     public static bool isMusicOn;
@@ -144,6 +146,7 @@ public class GameManager : MonoBehaviour {
         }
 
         settingsButtonActive = false;
+        commingSoonPanelActive = false;
         spwningUpperRange = cam.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height)).x; // right side from center
         spwningLowerRange = -spwningUpperRange; // left side from center
         spawnUnits = (level*5) + 40; // y = mx + c // m = 7 // c = 33 // last used values
@@ -213,6 +216,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    // Button Trigger
     public void PauseGameButtonTrigger() {
         if (!pause) {
             Time.timeScale = 0;
@@ -227,6 +231,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    // Button Trigger
     public void SettingsButtonTrigger() {
         if (!pause) {
             Time.timeScale = 0;
@@ -256,12 +261,7 @@ public class GameManager : MonoBehaviour {
         //ShowOtherButtons();
     }
 
-    public void HighScoreButtonTrigger() {
-        // Show High Score Panel
-        Handheld.Vibrate();
-    }
-
-    // Vibrate On Off
+    // Button Trigger Vibrate On Off
     public void VibrateButtonTrigger() {
         if (isVibrationOn) {
             isVibrationOn = false;
@@ -275,7 +275,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    // Music On Off
+    // Button Trigger Music On Off
     public void MusicButtonTrigger() {
         if (isMusicOn) {
             isMusicOn = false;
@@ -292,8 +292,27 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    // Button Trigger
     public void AboutUsButtonTrigger() {
-        // Show Abut Us Pannel
+        CommingSoon();
+    }
+    
+    // Button Trigger
+    public void HighScoreButtonTrigger() {
+        CommingSoon();
+    }
+    
+    // Button Trigger
+    public void ComminSoonButtonTrigger() {
+        if(commingSoonPanelActive) {
+            CommingSoonPanel.SetActive(false);
+            commingSoonPanelActive = false;
+        }
+    }
+
+    private void CommingSoon() {
+        CommingSoonPanel.SetActive(true);
+        commingSoonPanelActive = true;
     }
     
 }
