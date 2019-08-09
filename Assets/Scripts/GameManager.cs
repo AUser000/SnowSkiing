@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour {
     public GameObject GameOverPanel;
     public GameObject NextLevelPanel;
     public GameObject AboutPanel;
+    public GameObject AboutUsPanel;
     public GameObject CommingSoonPanel;
 
     public GameObject VibrateButton;
@@ -35,6 +36,7 @@ public class GameManager : MonoBehaviour {
 
     private Vector2 playerLastVelocity;
     private bool gameOver = false;
+    private bool gameOverPanelOn;
     private bool pause = false;
     private Camera cam;
     private int level;
@@ -66,19 +68,28 @@ public class GameManager : MonoBehaviour {
     }
 
     void Update() {
-        if (player.transform.position.y < -52f) {
+        if (player.transform.position.y < -50f) {
             if (!Player.win) {
                 Player.win = true;
-                StartNextLevel();
+            }
+            if (player.transform.position.y < -52f) {
+                if (Player.win && !gameOverPanelOn) {
+                    StartNextLevel();
+                    gameOverPanelOn = true;
+                }
             }
         }
         if (player.transform.position.x >= spwningUpperRange || player.transform.position.x <= spwningLowerRange) {
-            if (!Player.gameOver) {
+            if (Player.win) {
+                StartNextLevel();
+                gameOverPanelOn = true;
+            }
+
+            else if (!Player.gameOver && !Player.win) {
                 GameOver();
                 Player.gameOver = true;
             }
         }
-
         HandleInputs();
     }
 
@@ -145,6 +156,7 @@ public class GameManager : MonoBehaviour {
             isMusicOn = false;
         }
 
+        gameOverPanelOn = false;
         settingsButtonActive = false;
         commingSoonPanelActive = false;
         spwningUpperRange = cam.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height)).x; // right side from center
@@ -294,12 +306,23 @@ public class GameManager : MonoBehaviour {
 
     // Button Trigger
     public void AboutUsButtonTrigger() {
-        CommingSoon();
+        if (AboutUsPanel.active == true) {
+            AboutUsPanel.SetActive(false);
+            PauseGameButtonTrigger();
+            GamePanel.SetActive(true);
+        } else {
+            GamePanel.SetActive(false);
+            SettingsButtonTrigger();
+            AboutUsPanel.SetActive(true);
+            PauseGameButtonTrigger();
+        }
     }
     
     // Button Trigger
     public void HighScoreButtonTrigger() {
         CommingSoon();
+        //Pause
+        //
     }
     
     // Button Trigger
